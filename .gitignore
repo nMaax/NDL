@@ -1,3 +1,17 @@
+# Extra specifics for our project
+*.mat
+*.csv
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.zip
+*.7zip
+*.rar
+*.tar.gz
+*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
