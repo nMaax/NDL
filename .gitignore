@@ -1,5 +1,6 @@
 # Extra specifics for our project
 *.mat
+*.gml
 *.csv
 *.png
 *.jpg
