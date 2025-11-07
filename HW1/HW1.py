@@ -495,7 +495,7 @@ n_edges = B.shape[1]
 f_war = cp.Variable(n_edges)
 obj_war = cp.Minimize(
     cp.sum(-1 * cp.multiply(cp.multiply(l, C), cp.log(1 - cp.multiply(f_war, cp.inv_pos(C)))))
-) # ! Can't use ln as there is only log
+)
 const_war = [B @ f_war == nu_opt, f_war >=0]
 prob_war = cp.Problem(obj_war, const_war)
 
@@ -550,6 +550,35 @@ print(f"Social Optimum Cost (min total delay): {cost_opt}")
 print(f"Tolling Equilibrium's Total Delay:     {social_cost_at_tolling}")
 
 price_of_anarchy = social_cost_at_tolling / cost_opt
+print(f"Price of Anarchy: {price_of_anarchy}")
+
+# %%
+
+# Construct the problem
+n_edges = B.shape[1]
+f_comp = cp.Variable(n_edges)
+
+obj_comp = cp.Minimize(
+    cp.sum(cp.multiply(cp.multiply(l, C), cp.inv_pos(1 - cp.multiply(f_comp, cp.inv_pos(C)))) - cp.multiply(l, C) - cp.multiply(f_comp, l)) 
+)
+
+const_comp = [B @ f_comp == nu_opt, f_comp >=0]
+prob_comp = cp.Problem(obj_comp, const_comp)
+
+# Solve the problem
+cost_comp = prob_comp.solve()
+flow_comp = f_comp.value
+print("Compared additional vs free travel optimal flow:", flow_comp)
+print("Optimal cost:", cost_comp)
+
+# %%
+
+social_cost_at_comp = np.sum((l * C) / (1 - flow_comp / C) - (l * C))
+
+print(f"Social Optimum Cost (min total delay): {cost_comp}")
+print(f"Cost as comparison vs. free Total Delay:     {social_cost_at_comp}")
+
+price_of_anarchy = social_cost_at_comp / cost_opt
 print(f"Price of Anarchy: {price_of_anarchy}")
 
 # %%
