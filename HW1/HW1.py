@@ -502,10 +502,15 @@ prob_war = cp.Problem(obj_war, const_war)
 # Solve the problem
 cost_war = prob_war.solve()
 flow_war = f_war.value
-print("Social optimal flow:", flow_war)
+print("Wardrop optimal flow:", flow_war)
 print("Optimal cost:", cost_war)
 
 # %%
 
+social_cost_at_wardrop = np.sum((l * C) / (1 - flow_war / C) - (l * C))
 
+print(f"Social Optimum Cost (min total delay): {cost_opt}")
+print(f"Wardrop Equilibrium's Total Delay:     {social_cost_at_wardrop}")
 
+price_of_anarchy = social_cost_at_wardrop / cost_opt
+print(f"Price of Anarchy: {price_of_anarchy}")
