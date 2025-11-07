@@ -514,3 +514,42 @@ print(f"Wardrop Equilibrium's Total Delay:     {social_cost_at_wardrop}")
 
 price_of_anarchy = social_cost_at_wardrop / cost_opt
 print(f"Price of Anarchy: {price_of_anarchy}")
+
+# %%
+
+# Compute omega using fe_opt * te'(fe_opt) definition 
+omega = flow_opt * (l / (C * (1 - flow_opt/C)**2))
+
+# The optimal toll vector (omega) is a constant. We seek the new Wardrop equilibrium (f_toll)
+# by minimizing the potential function: Integral(t_e(x) + omega_e) dx.
+# This results in the same obj function as before,
+# plus the linear term: cp.multiply(f_toll, omega)
+
+# Construct the problem
+n_edges = B.shape[1]
+f_toll = cp.Variable(n_edges)
+
+obj_toll = cp.Minimize(
+    cp.sum(-1 * cp.multiply(cp.multiply(l, C), cp.log(1 - cp.multiply(f_toll, cp.inv_pos(C)))) + cp.multiply(f_toll, omega))
+) # Minimize Wardrop with tolling
+
+const_toll = [B @ f_toll == nu_opt, f_toll >=0]
+prob_toll = cp.Problem(obj_toll, const_toll)
+
+# Solve the problem
+cost_toll = prob_toll.solve()
+flow_toll = f_toll.value
+print("Tolling optimal flow:", flow_toll)
+print("Optimal cost:", cost_toll)
+
+# %%
+
+social_cost_at_tolling = np.sum((l * C) / (1 - flow_toll / C) - (l * C))
+
+print(f"Social Optimum Cost (min total delay): {cost_opt}")
+print(f"Tolling Equilibrium's Total Delay:     {social_cost_at_tolling}")
+
+price_of_anarchy = social_cost_at_tolling / cost_opt
+print(f"Price of Anarchy: {price_of_anarchy}")
+
+# %%
