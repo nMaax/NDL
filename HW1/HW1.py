@@ -579,16 +579,27 @@ print("Optimal cost:", cost_comp)
 
 # %%
 
-social_cost_at_comp = np.sum((l * C) / (1 - flow_comp / C) - (l * C))
+social_cost_at_comp = np.sum(
+    ((l * C) / (1 - flow_comp / C) - (l * C)) # This is f*tau
+    - (flow_comp * l)                         # This is -f*l
+)
+
+social_cost_at_comp_war = np.sum(
+    ((l * C) / (1 - flow_war / C) - (l * C)) # This is f*tau
+    - (flow_war * l)                         # This is -f*l
+)
 
 print(f"Social Optimum Cost (min total delay): {cost_comp}")
-print(f"Cost as comparison vs. free Total Delay:     {social_cost_at_comp}")
+print(f"Cost as Wardrop equilibrium over new social cost: {social_cost_at_comp_war}")
 
 # ! Actually no-sense as we are not providing a UO-TAP system w.r.t. a SO-TAP
 # ! Here we are defying a completely different concept of valuing "the cost" than in SO-TAP
 # ! So this cost is the actual reference of the PoA!
-price_of_anarchy = social_cost_at_comp / cost_opt
-print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
+# price_of_anarchy = social_cost_at_comp / cost_opt
+# print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
+
+price_of_anarchy = social_cost_at_comp_war / social_cost_at_comp
+print(f"Price of Anarchy: {price_of_anarchy}")
 
 # %%
 
@@ -626,7 +637,7 @@ print(f"Price of Anarchy (over Comp): {price_of_anarchy}")
 
 # ! This still isn't PoA, as it computes over a cost_opt that do not belong
 # ! to this current problem, but the previous one
-price_of_anarchy = social_cost_at_comp_toll / cost_opt
-print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
+# price_of_anarchy = social_cost_at_comp_toll / cost_opt
+# print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
 
 # %%
