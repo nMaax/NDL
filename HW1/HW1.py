@@ -515,6 +515,9 @@ print(f"Wardrop Equilibrium's Total Delay:     {social_cost_at_wardrop}")
 price_of_anarchy = social_cost_at_wardrop / cost_opt
 print(f"Price of Anarchy: {price_of_anarchy}")
 
+# %% [markdown]
+# Introduce tolling
+
 # %%
 
 # Compute omega using fe_opt * te'(fe_opt) definition 
@@ -552,6 +555,9 @@ print(f"Tolling Equilibrium's Total Delay:     {social_cost_at_tolling}")
 price_of_anarchy = social_cost_at_tolling / cost_opt
 print(f"Price of Anarchy: {price_of_anarchy}")
 
+# %% [markdown]
+# Cost as total additional travel time compared to the total travel time in free flow
+
 # %%
 
 # Construct the problem
@@ -578,7 +584,47 @@ social_cost_at_comp = np.sum((l * C) / (1 - flow_comp / C) - (l * C))
 print(f"Social Optimum Cost (min total delay): {cost_comp}")
 print(f"Cost as comparison vs. free Total Delay:     {social_cost_at_comp}")
 
+# ! Actually no-sense as we are not providing a UO-TAP system w.r.t. a SO-TAP
+# ! Here we are defying a completely different concept of valuing "the cost" than in SO-TAP
+# ! So this cost is the actual reference of the PoA!
 price_of_anarchy = social_cost_at_comp / cost_opt
-print(f"Price of Anarchy: {price_of_anarchy}")
+print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
+
+# %%
+
+omega_comp = flow_comp * (l / (C * (1 - flow_comp/C)**2)) - l
+
+# Construct the problem
+n_edges = B.shape[1]
+f_comp_toll = cp.Variable(n_edges)
+
+obj_comp_toll = cp.Minimize(
+    cp.sum(-1 * cp.multiply(cp.multiply(l, C), cp.log(1 - cp.multiply(f_comp_toll, cp.inv_pos(C)))) + cp.multiply(f_comp_toll, omega_comp))
+) # Minimize with tolling
+
+const_comp_toll = [B @ f_comp_toll == nu_opt, f_comp_toll >=0]
+prob_comp_toll = cp.Problem(obj_comp_toll, const_comp_toll)
+
+# Solve the problem
+cost_comp_toll = prob_comp_toll.solve()
+flow_comp_toll = f_comp_toll.value
+print("Compared additional vs free travel optimal flow:", flow_comp_toll)
+print("Optimal cost:", cost_comp_toll)
+
+# %%
+
+social_cost_at_comp_toll = np.sum(
+    ((l * C) / (1 - flow_comp_toll / C) - (l * C)) # This is f*tau
+    - (flow_comp_toll * l)                         # This is -f*l
+)
+
+print(f"Social Optimum Cost (min total delay): {cost_comp_toll}")
+print(f"Cost as comparison vs. free Total Delay:     {social_cost_at_comp_toll}")
+
+price_of_anarchy = social_cost_at_comp_toll / cost_comp
+print(f"Price of Anarchy (over Comp): {price_of_anarchy}")
+
+price_of_anarchy = social_cost_at_comp_toll / cost_opt
+print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
 
 # %%
