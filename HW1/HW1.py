@@ -624,6 +624,8 @@ print(f"Cost as comparison vs. free Total Delay:     {social_cost_at_comp_toll}"
 price_of_anarchy = social_cost_at_comp_toll / cost_comp
 print(f"Price of Anarchy (over Comp): {price_of_anarchy}")
 
+# ! This still isn't PoA, as it computes over a cost_opt that do not belong
+# ! to this current problem, but the previous one
 price_of_anarchy = social_cost_at_comp_toll / cost_opt
 print(f"Price of Anarchy (over SO-TAP): {price_of_anarchy}")
 
